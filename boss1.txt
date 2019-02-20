@@ -1,0 +1,392 @@
+//Emp_detBean
+package com.cognizant.bean;
+
+public class Emp_detBean {
+	private int eid;
+	private String ename;
+	private String designation;
+	public int getEid() {
+		return eid;
+	}
+	public void setEid(int eid) {
+		this.eid = eid;
+	}
+	public String getEname() {
+		return ename;
+	}
+	public void setEname(String ename) {
+		this.ename = ename;
+	}
+	public String getDesignation() {
+		return designation;
+	}
+	public void setDesignation(String designation) {
+		this.designation = designation;
+	}
+
+}
+
+//EmployeeDAO
+package com.cognizant.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.cognizant.bean.Emp_detBean;
+
+public class EmployeeDAO {
+	public static Connection connect() throws Exception {
+		Connection conn=null;
+		Class.forName("com.mysql.jdbc.Driver");
+		String url="jdbc:mysql://localhost:3306/test";
+		conn = DriverManager.getConnection(url,"root","root");
+		return conn;
+	}
+	public int insert(Emp_detBean emp)throws Exception {
+		Connection conn=connect();
+		String insertQuery="insert into emp_det values(?,?,?)";
+		PreparedStatement pstmt = conn.prepareStatement(insertQuery);
+		pstmt.setInt(1,emp.getEid());
+		pstmt.setString(2,emp.getEname());
+		pstmt.setString(3,emp.getDesignation());
+		int insertStatus=0;
+		insertStatus=pstmt.executeUpdate();
+		return insertStatus;
+	}
+	public int delete(int eid) throws Exception{
+		Connection conn=connect();
+		String deleteQuery="delete from emp_det where eid="+eid;
+		int deleteStatus=0;
+		Statement stmt= conn.createStatement();
+		deleteStatus=stmt.executeUpdate(deleteQuery);
+		return deleteStatus;
+	}
+    public int update(Emp_detBean emp)throws Exception {
+    	Connection conn=connect();
+		String updateQuery="update emp_det set ename=?,designation=? where eid=?";
+		PreparedStatement pstmt = conn.prepareStatement(updateQuery);
+		pstmt.setInt(3,emp.getEid());
+		pstmt.setString(1,emp.getEname());
+		pstmt.setString(2,emp.getDesignation());
+		int updateStatus=0;
+		updateStatus=pstmt.executeUpdate();
+		return updateStatus;
+    }
+    public Emp_detBean read(int eid)throws Exception {
+    	Connection conn=connect();
+		String readQuery="select * from emp_det where eid="+eid;
+		Statement st= conn.createStatement();
+		ResultSet rs=st.executeQuery(readQuery);
+		Emp_detBean emp= new Emp_detBean();
+		
+		if(rs.next())
+		{
+			emp.setEid(rs.getInt(1));
+			emp.setEname(rs.getString(2));
+			emp.setDesignation(rs.getString(3));
+		}
+		return emp;
+    }
+    
+		
+    
+    public List<Emp_detBean> readAll() throws Exception{
+    	List<Emp_detBean> empList=new ArrayList<Emp_detBean>();
+    	Connection conn= connect();
+    	String read = "select * from emp_det ";
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery(read);
+		
+		
+		while(rs.next())
+		{
+			Emp_detBean emp = new Emp_detBean();
+			emp.setEid(rs.getInt(1));
+			emp.setEname(rs.getString(2));
+			emp.setDesignation(rs.getString(3));
+			empList.add(emp);
+		}
+		
+		
+    	return empList;
+    }
+
+}
+
+//index
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>CRUD HOME</title>
+</head>
+<body>
+<div align="center">
+<h1>CRUD USING JSP</h1>
+	<a href="insert.jsp">Insert</a> &nbsp; <a href="read.jsp">Read</a>
+	</div>
+</body>
+</html>
+
+//read
+<%@page import="com.cognizant.dao.EmployeeDAO"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.List"%>
+<%@page import="com.cognizant.bean.Emp_detBean"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Table Content</title>
+</head>
+<body>
+	<center>
+		<a href="index.jsp">HOME</a>
+	</center>
+	<center>
+		<h1>TRAINEE DETAIL TABLE CONTENT</h1>
+	</center>
+	<%
+		try{
+			EmployeeDAO emp=new EmployeeDAO();
+			List<Emp_detBean> list=new ArrayList<Emp_detBean>();
+			list=emp.readAll();
+	%>
+	<table border="1" align="center">
+		<tr>
+
+			<th>Eid</th>
+			<th>Ename</th>
+			<th>Designation</th>
+			<th>Actions</th>
+		</tr>
+		<%for(Emp_detBean bean: list){ %>
+			<tr>
+			     <th><%= bean.getEid() %></th>
+			     <th><%= bean.getEname() %></th>
+			     <th><%= bean.getDesignation() %></th>
+			     <th><a href="edit.jsp?Eid=<%=bean.getEid()%>">Edit</a> | <a href="delete.jsp?Eid=<%=bean.getEid()%>">Delete</a></th>
+			 </tr>
+			
+			<%} %> 
+	</table>
+<%
+		}catch(Exception e){
+			out.println(e.getMessage());}
+	%>
+		
+
+</body>
+</html>
+
+//insert
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Insert</title>
+</head>
+<body>
+	<h1 align="center">ADD A NEW RECORD</h1>
+	<table>
+	<form action="Insertaction.jsp">
+		<tr>
+			<th>Column Name</th>
+			<th>Value</th>
+		</tr>
+		<tr>
+			<td>Eid:</td>
+			<td><input type="number" name="eid" required="required"></td>
+		</tr>
+		<tr>
+			<td>Name:</td>
+			<td><input type="text" name="ename" required="required"></td>
+		</tr>
+		<tr>
+			<td>Designation:</td>
+			<td><input type="text" name="desig" required="required"></td>
+		</tr>
+		<tr>
+		<td><input type="reset" value="Clear"></td>
+		<td><input type="submit" value="Insert"></td>
+        </tr>	
+        </form>
+	</table>
+</body>
+</html>
+
+//insertaction
+<%@page import="com.cognizant.bean.Emp_detBean"%>
+<%@page import="com.cognizant.dao.EmployeeDAO"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>ACTION</title>
+</head>
+<body>
+	<%
+		try {
+			EmployeeDAO emp = new EmployeeDAO();
+			Emp_detBean bean = new Emp_detBean();
+			bean.setEid(Integer.parseInt(request.getParameter("eid")));
+			bean.setEname(request.getParameter("ename"));
+			bean.setDesignation(request.getParameter("desig"));
+			int insertStatus = 0;
+			insertStatus = emp.insert(bean);
+			if (insertStatus == 0) {
+				out.println("Error while Inserting");
+			} else {
+				response.sendRedirect("read.jsp");
+			}
+		} catch (Exception e) {
+			out.println(e.getMessage());
+		}
+	%>
+
+</body>
+</html>
+
+//delete
+<%@page import="com.cognizant.dao.EmployeeDAO"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>DELETE PAGE</title>
+</head>
+<body>
+       <%
+       try{
+       EmployeeDAO emp = new EmployeeDAO();
+       int status = 0;
+       status = emp.delete(Integer.parseInt(request.getParameter("Eid")));
+       if(status == 0) out.println("Error while deleting");
+       else response.sendRedirect("read.jsp");
+       }catch(Exception e) {
+       	out.println(e.getMessage());
+       } 	
+		%>
+
+</body>
+</html>
+
+//edit
+<%@page import="com.cognizant.bean.Emp_detBean"%>
+<%@page import="com.cognizant.dao.EmployeeDAO"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Insert</title>
+</head>
+<body>
+	<h1 align="center">Edit RECORD</h1>
+	<form action="editaction.jsp">
+		<table>
+
+			<tr>
+				<th>Column Name</th>
+				<th>Value</th>
+			</tr>
+			<%
+			EmployeeDAO emp = new EmployeeDAO();
+			Emp_detBean bean = emp.read(Integer.parseInt(request.getParameter("Eid")));
+			%>
+			<tr>
+				<td>Eid:</td>
+				<td><input type="number" name="eid"
+					value="<%=bean.getEid()%>"></td>
+			</tr>
+			<tr>
+				<td>Name:</td>
+				<td><input type="text" name="ename"
+					value="<%=bean.getEname()%>"></td>
+			</tr>
+			<tr>
+				<td>Designation:</td>
+				<td><input type="text" name="desig"
+					value="<%=bean.getDesignation()%>"></td>
+			</tr>
+			<tr>
+			
+				<td><input type="submit" value="Edit"></td>
+			</tr>
+			
+
+		</table>
+	</form>
+</body>
+</html>
+
+//editaction
+<%@page import="com.cognizant.bean.Emp_detBean"%>
+<%@page import="com.cognizant.dao.EmployeeDAO"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>ACTION</title>
+</head>
+<body>
+	<%
+	
+		try {
+					EmployeeDAO emp = new EmployeeDAO();
+					Emp_detBean bean = new Emp_detBean();
+					bean.setEid(Integer.parseInt(request.getParameter("eid")));
+					bean.setEname(request.getParameter("ename"));
+					bean.setDesignation(request.getParameter("desig"));
+					int updateStatus = 0;
+					updateStatus = emp.update(bean);
+					if (updateStatus == 0) {
+						out.println("Error while Updating");
+					} else {
+						response.sendRedirect("read.jsp");
+					}
+				} catch (Exception e) {
+					out.println(e.getMessage());
+				} 
+		 
+     %>
+		
+
+</body>
+</html>
