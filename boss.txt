@@ -1,0 +1,171 @@
+//READ
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"  %>
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Table Content</title>
+</head>
+<body>
+	<center>
+	<a href="index.jsp">HOME</a>
+	</center>
+	<center>
+		<h1>TRAINEE DETAIL TABLE CONTENT</h1>
+	</center>
+	<table border="1" align="center">
+		<tr>
+		    
+			<th>bookingid</th>
+			<th>flightid</th>
+			<th>bookdate</th>
+			
+		</tr>
+		<%
+			try{
+				Class.forName("com.mysql.jdbc.Driver");
+				String url="jdbc:mysql://localhost:3306/test";
+				Connection conn = DriverManager.getConnection(url,"root","root");
+				
+				Statement stmt=conn.createStatement();
+				ResultSet rs= stmt.executeQuery("select * from emp_det");
+				
+				int i=1;
+				while(rs.next()){
+					
+				
+		%>
+		<tr>
+			
+			<td><%= rs.getString(1) %></td>
+			<td><%= rs.getString(2) %></td>
+			<td><%= rs.getString(3) %></td>
+			<td><a href="insert.jsp?eid=<%= rs.getString(1) %>"> EDIT </a> | <a href="delete.jsp?eid=<%= rs.getString(1) %>"> DELETE</a></td>
+			</tr>
+<% 
+				}rs.close();
+			conn.close();
+			stmt.close();
+			}catch(Exception e){
+				out.println(e.getMessage());
+			}
+			%>
+</table>
+
+</body>
+</html>
+
+//delete
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>DELETE PAGE</title>
+</head>
+<body>
+       <%
+			try{
+				Class.forName("com.mysql.jdbc.Driver");
+				String url="jdbc:mysql://localhost:3306/test";
+				Connection conn = DriverManager.getConnection(url,"root","root");
+				
+				Statement stmt=conn.createStatement();
+			   int deleteStatus = 0;
+			   deleteStatus = stmt.executeUpdate("delete from emp_det where eid='"+ request.getParameter("eid")+"'");
+			   if(deleteStatus==0)
+				   out.println("Error while Deleting the record!! pls check");
+               else
+                   response.sendRedirect("read.jsp");  	
+			}catch(Exception e){
+				out.println(e.getMessage());
+			}
+				
+		%>
+
+</body>
+</html>
+
+//insert
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>DELETE PAGE</title>
+</head>
+<body>
+       <%
+			try{
+				Class.forName("com.mysql.jdbc.Driver");
+				String url="jdbc:mysql://localhost:3306/test";
+				Connection conn = DriverManager.getConnection(url,"root","root");
+				
+				Statement stmt=conn.createStatement();
+			   int deleteStatus = 0;
+			   deleteStatus = stmt.executeUpdate("delete from emp_det where eid='"+ request.getParameter("eid")+"'");
+			   if(deleteStatus==0)
+				   out.println("Error while Deleting the record!! pls check");
+               else
+                   response.sendRedirect("read.jsp");  	
+			}catch(Exception e){
+				out.println(e.getMessage());
+			}
+				
+		%>
+
+</body>
+</html>
+
+//insertaction
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html >
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Insert</title>
+</head>
+<body>
+	<h1 align="center">ADD A NEW RECORD</h1>
+	<table>
+	<form action="Insertaction.jsp">
+		<tr>
+			<th>Column Name</th>
+			<th>Value</th>
+		</tr>
+		<tr>
+			<td>Eid:</td>
+			<td><input type="number" name="eid" required="required"></td>
+		</tr>
+		<tr>
+			<td>Name:</td>
+			<td><input type="text" name="ename" required="required"></td>
+		</tr>
+		<tr>
+			<td>Designation:</td>
+			<td><input type="text" name="desig" required="required"></td>
+		</tr>
+		<tr>
+		<td><input type="reset" value="Clear"></td>
+		<td><input type="submit" value="Insert"></td>
+        </tr>	
+        </form>
+	</table>
+</body>
+</html>
