@@ -1,0 +1,243 @@
+index.jsp
+----------------------------
+
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.ResultSetMetaData"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Validation</title>
+</head>
+<body>
+ <%
+         String uname = request.getParameter("uname");
+         String password = request.getParameter("pass");
+        // session.setAttribute("username", uname);
+         
+         int status = 0;
+        
+         try {
+                Class.forName("com.mysql.jdbc.Driver");
+                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/practical", "root", "root");
+                String s1 = "select * from login where uname='"+uname+"' AND password='"+password+"'";
+                PreparedStatement ps = conn.prepareStatement(s1);
+                ResultSet rs = ps.executeQuery(s1);
+                if(rs.next())
+                {
+                	  response.sendRedirect("ListProduct.jsp?uname="+uname);
+                }
+                else
+                {
+          
+                	String s3 = "select status from login where uname='"+uname+"'";
+                    PreparedStatement ps1 = conn.prepareStatement(s1);
+                    ResultSet rs1 = ps1.executeQuery(s3);
+                	while(rs1.next())
+                	{
+                		status = Integer.parseInt(rs1.getString(1));
+                	}
+                	
+                	++status;
+                	
+                	if(status<4)
+                	   {
+                		
+                		String s2 = "update login set status =? where uname=?";
+                		PreparedStatement pst = conn.prepareStatement(s2);
+                		pst.setInt(1, status);
+                		pst.setString(2, uname);
+                	     pst.execute();
+                		response.sendRedirect("index.html");
+                	   }
+                	else{
+                		//out.println("blocked");
+                		response.sendRedirect("index.html?mes");
+                	}
+                	
+                	
+                  	
+              	
+                }
+               
+                
+         }
+         catch(Exception e)
+         {
+        	 out.println(e.getMessage());
+         }
+ 
+ %>
+</body>
+</html>
+
+
+=======================================================================
+index.html
+-----------
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style\practicecheck.css">
+<title>GRIZZLY STORES</title>
+<script type="text/javascript" src="scripts\username.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+<style>
+input {
+	outline: none;
+}
+</style>
+
+
+</head>
+<body>
+
+	<br>
+	<br>
+	<div class="container-fluid">
+		<img src="images\grizzly.png" alt="grizzly" class="center-block">
+		<div class>
+			<h1 align="center" style="font-size:6rem;">
+				GRIZZLY STORE
+			</h1>
+		</div>
+		<br> <br>
+		<div>
+
+
+			<form action="index.jsp" name="form1" method="get" target="_parent"
+				id="formLogin">
+				<p align="center">
+					<input type="text" name="uname" placeholder="username"
+						class="form-rounded username-padding" data-toggle="tooltip"
+						title="username" required onblur="sendInfo()">
+				</p>
+				<!--   <p align="center">
+					<input type="password" value="" name="pass"placeholder="password"
+						class="form-rounded username-padding" data-toggle="tooltip"
+						title="Password" required> 
+				</p>-->
+				<p align="center">
+					<span id="amit"> </span>
+				</p>
+				<p align="center" class="text-dark">
+					<input type="submit" value="login" class="login-logout-button"
+						style="width: 5%" data-toggle=" tooltip" title="LOGIN"">
+				</p>
+			</form>
+			<div id="emessage" align="center"></div>
+
+		</div>
+	</div>
+
+
+	<script>
+		var request;
+		function sendInfo() {
+			var v = document.form1.uname.value;
+			//console.log("val of v :"+v);
+			var url = "ajax.jsp?val=" + v;
+
+			if (window.XMLHttpRequest) {
+				request = new XMLHttpRequest(); //for newwer versoins of browser that is capable of creating xmlhttpreq object.
+			} else if (window.ActiveXObject) {
+				request = new ActiveXObject("Microsoft.XMLHTTP");//for older versions of the browser
+			}
+
+			try {
+				request.onreadystatechange = getInfo;
+				request.open("GET", url, true);
+				request.send();
+			} catch (e) {
+				alert("Unable to connect to server");
+			}
+		}
+
+		function getInfo() {
+			if (request.readyState == 4) {
+				var val = request.responseText;
+				document.getElementById('amit').innerHTML = val;
+			}
+		}
+
+		var param = window.location.search.substr(1);
+		if(param == "mes")
+		    {
+			 document.getElementById("emessage").innerHTML="Access Denied";}
+		
+		window.onload = function() {
+		
+			if (performance.navigation.type == 1) {
+				window.location.replace("index.html");
+			  }
+			
+			}
+	</script>
+
+</body>
+</html>
+
+===========================================
+ajax.jsp
+---------
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.Connection"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Ajax Page</title>
+</head>
+<body>
+	<%
+		String user = request.getParameter("val");
+		//session.setAttribute("username", user);
+		//out.println("username : " + user);
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/practical", "root", "root");
+			String userQuery = "Select * from login where uname='" + user + "'";
+			PreparedStatement ps = conn.prepareStatement(userQuery);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+	%>
+
+	<p align="center">
+		<input type="password" name="pass" placeholder="password"
+			class="form-rounded username-padding" data-toggle="tooltip"
+			title="Password" required>
+
+
+		<%
+			//String password = request.getParameter("pass");
+					//session.setAttribute("password",password);
+				} else {
+					out.println("Invalid");
+				}
+
+			} catch (Exception e) {
+				out.println(e.getMessage());
+			}
+		%>
+	
+</body>
+</html>
+
