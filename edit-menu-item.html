@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTP-8">
+	<title>truYum</title>
+	<script type = "text/javascript" src="js/script.js"></script> 
+	<link rel="stylesheet" type="text/css" href="style/style.css" />
+</head>
+
+<body>
+	<div class="topnav">
+		<div class="home">truYum</div>
+		<img src="images/truyum-logo-light.png">
+		<a href="menu-item-list-admin.html">Menu</a>
+	</div>
+	
+	<div class="page-title">Edit Menu Item</div>
+	<div class="page-content1">
+	<form  name = "editMenuItem" action = "edit-menu-item-status.html" onsubmit = "return validate()">
+	<label for="title">Name:</label><br><input class="text-box1" type="text" name="title" id="title"><br><br>
+	</div>
+	<div>
+		<table>
+			<tr>
+			<td><label for="price">Price(Rs.):</label><br><input class="text-box" type="text" name="price" id="price"></td>
+			<td>Active:<br><input type="radio" name="active" value="YES" id="yes"><label for="yes">YES</label>
+			<input type="radio" name="active" value="NO" id="no"><label for="no">NO</label></td>
+			<td><label for="dateOfLaunch">Date of Launch:</label><br><input class="text-box" type="text" name="dateOfLaunch" id="dateOfLaunch"></td>
+			<td>Category:<br><select>
+				<option class="dropdown" value="category">Main Course</option>
+				<option class="dropdown" value="category">Starters</option>
+				<option class="dropdown" value="category">Dessert</option>
+				<option class="dropdown" value="category">Drinks</option></select></td>
+			</tr>
+  
+		</table>
+	</div>
+	<div class="page-content2">
+		<br><br><input type="checkbox" name="freeDelivery" id="freedelivery"><label for="freedelivery">Free Delivery</label><br><br>
+		<input class="button" type="submit" value="SAVE">
+	</div>	
+	</form>
+	<div class="footer"> Copyright@2019</div>
+</body>
+</html>
